@@ -14,7 +14,7 @@ let template_replace template_id fragment =
   String.substr_replace_first ~pattern:("${{{" ^ template_id ^ "}}}") ~with_:fragment
 ;;
 
-let load_article_template base = 
+let load_article_template base =
   let nav_template = In_channel.read_all (nav_template base) in
   template_replace "NAV_BAR_CONTENT" nav_template (In_channel.read_all (article_template base))
 
