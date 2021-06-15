@@ -42,6 +42,10 @@ let rec remove_meta_lines xs =
   | x :: xs -> x :: remove_meta_lines xs
 ;;
 
+let title_to_html (article : t) = article.name
+let created_time_to_html (article : t) = article.created
+let to_html (article : t) = Markdown_parser.to_html article.full_contents
+
 let meta_extract_tags lines =
   List.map
     ~f:(fun x -> String.strip x)
