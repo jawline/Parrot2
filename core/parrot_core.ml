@@ -37,23 +37,21 @@ let emit_index base output_folder =
     ~data:(render_index (load_index_template base))
 ;;
 
-let%test "directory_scan" =
-  let base = "/home/blake/Parrot2/website/" in
-  let output_base = "/home/blake/Parrot2/out/" in
-  let article_template = load_article_template base in
-  let timezone = match Time.Zone.find "utc" with
-  | Some v -> v
-  | None -> raise InvalidTimezone
+let clean_build input_directory output_directory =
+  let article_template = load_article_template input_directory in
+  let timezone =
+    match Time.Zone.find "utc" with
+    | Some v -> v
+    | None -> raise InvalidTimezone
   in
   let rec print_list = function
     | [] -> ()
     | x :: xs ->
       let article = ingest_article x in
       printf "Processing: %s\n" article.name;
-      emit_article article article_template output_base ~zone:timezone;
+      emit_article article article_template output_directory ~zone:timezone;
       print_list xs
   in
-  emit_index base output_base;
-  print_list (Articles.all_articles base);
-  true
+  emit_index input_directory output_directory;
+  print_list (Articles.all_articles input_directory);
 ;;

@@ -1,0 +1,6 @@
+(executable
+ (name parrot)
+ (public_name parrot)
+ (libraries parrot_core core)
+ (preprocess
+  (pps ppx_jane ppx_deriving.show ppx_deriving.ord)))

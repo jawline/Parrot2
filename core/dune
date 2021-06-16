@@ -1,0 +1,6 @@
+(library
+ (name parrot_core)
+ (libraries core markdown_parser)
+ (inline_tests)
+ (preprocess
+  (pps ppx_jane ppx_deriving.show ppx_deriving.ord ppx_inline_test)))

@@ -48,9 +48,12 @@ let title_to_html (article : t) = article.name
  * TODO: This is horrible legacy, I should standardize on one or the other *)
 let created_time_to_html (article : t) ~(zone : Time.Zone.t) =
   try
-    let created = Time.of_span_since_epoch (Time.Span.of_sec (Float.of_string article.created)) in
+    let created =
+      Time.of_span_since_epoch (Time.Span.of_sec (Float.of_string article.created))
+    in
     Time.format created "%d-%m-%Y" ~zone
-  with Invalid_argument _ -> article.created
+  with
+  | Invalid_argument _ -> article.created
 ;;
 
 let to_html (article : t) = Markdown_parser.to_html article.full_contents
