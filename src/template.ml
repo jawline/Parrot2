@@ -29,11 +29,11 @@ let load_article_template base =
     (In_channel.read_all (article_template base))
 ;;
 
-let render_article article template =
+let render_article article template ~(zone : Time.Zone.t) =
   template
   |> template_replace "ARTICLE_CONTENT" (Article.to_html article)
   |> template_replace "ARTICLE_TITLE" (Article.title_to_html article)
-  |> template_replace "ARTICLE_TIME" (Article.created_time_to_html article)
+  |> template_replace "ARTICLE_TIME" (Article.created_time_to_html article ~zone)
 ;;
 
 let render_index template = template

@@ -43,7 +43,16 @@ let rec remove_meta_lines xs =
 ;;
 
 let title_to_html (article : t) = article.name
-let created_time_to_html (article : t) = article.created
+
+(* If the creation time is an epoch time string then we format it using a UTC timezone, otherwise we assume it's a specific string
+ * TODO: This is horrible legacy, I should standardize on one or the other *)
+let created_time_to_html (article : t) ~(zone : Time.Zone.t) =
+  try
+    let created = Time.of_span_since_epoch (Time.Span.of_sec (Float.of_string article.created)) in
+    Time.format created "%d-%m-%Y" ~zone
+  with Invalid_argument _ -> article.created
+;;
+
 let to_html (article : t) = Markdown_parser.to_html article.full_contents
 
 let meta_extract_tags lines =
