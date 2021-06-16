@@ -38,6 +38,8 @@ let emit_index base output_folder =
 ;;
 
 let clean_build input_directory output_directory =
+  let input_directory = input_directory ^ "/" in
+  let output_directory = output_directory ^ "/" in
   let article_template = load_article_template input_directory in
   let timezone =
     match Time.Zone.find "utc" with
@@ -52,6 +54,7 @@ let clean_build input_directory output_directory =
       emit_article article article_template output_directory ~zone:timezone;
       print_list xs
   in
+  FileUtil.cp ~recurse:true [(input_directory ^ "static/")] output_directory;
   emit_index input_directory output_directory;
   print_list (Articles.all_articles input_directory);
 ;;

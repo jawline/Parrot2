@@ -3,4 +3,5 @@
 (using menhir 2.0)
 (package
   (name parrot)
+  (depends fileutils core)
 )
