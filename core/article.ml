@@ -57,6 +57,8 @@ let created_time_to_html (article : t) ~(zone : Time.Zone.t) =
 ;;
 
 let to_html (article : t) = Markdown_parser.to_html article.full_contents
+let intro_to_html (article : t) = Markdown_parser.to_html article.intro
+let tags_to_html (article: t) = String.concat ~sep:", " article.tags
 
 let meta_extract_tags lines =
   List.map

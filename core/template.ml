@@ -5,6 +5,12 @@ let templates_subdir base = sprintf "%s/templates" base
 (* Articles are constructed out of the article template file *)
 let article_template base = sprintf "%s/article.html" (templates_subdir base)
 
+(* A tag template is used to create tag items (descriptions of an article) in the page for a specific page *)
+let tag_template base = sprintf "%s/tag.html" (templates_subdir base);;
+
+(* The tags template contains a list of tag entries (descriptions of articles) with links *)
+let tags_template base = sprintf "%s/tags.html" (templates_subdir base);;
+
 (* The nav bar at the top is static but appears in multiple different templates. Because of this we pull it out into it's own template file
   * TODO: It would be more powerful to use a template-schema like ${{{file:/templates/nav.html}}} across all templates in the future. *)
 let nav_template base = sprintf "%s/nav.html" (templates_subdir base)
@@ -21,6 +27,16 @@ let load_index_template base =
   template_replace "NAV_BAR_CONTENT" nav_template index_template
 ;;
 
+let load_tag_template base =
+  In_channel.read_all (tag_template base)
+;;
+
+let load_tags_template base =
+  let nav_template = In_channel.read_all (nav_template base) in
+  let tags_template = In_channel.read_all (tags_template base) in
+  template_replace "NAV_BAR_CONTENT" nav_template tags_template
+;;
+
 let load_article_template base =
   let nav_template = In_channel.read_all (nav_template base) in
   template_replace
@@ -29,11 +45,29 @@ let load_article_template base =
     (In_channel.read_all (article_template base))
 ;;
 
-let render_article article template ~(zone : Time.Zone.t) =
+let render_article (article: Article.t) ~(template : string) ~(zone : Time.Zone.t) =
+  let r = template_replace in
   template
-  |> template_replace "ARTICLE_CONTENT" (Article.to_html article)
-  |> template_replace "ARTICLE_TITLE" (Article.title_to_html article)
-  |> template_replace "ARTICLE_TIME" (Article.created_time_to_html article ~zone)
+  |> r "ARTICLE_CONTENT" (Article.to_html article)
+  |> r "ARTICLE_TITLE" (Article.title_to_html article)
+  |> r "ARTICLE_TIME" (Article.created_time_to_html article ~zone)
+;;
+
+let render_tag_item (article: Article.t)  ~(template : string) ~(zone : Time.Zone.t) =
+  let r = template_replace in
+  template
+  |> r "LI_NAME" (Article.title_to_html article)
+  |> r "LI_DESCRIPTION" (Article.intro_to_html article)
+  |> r "LI_TAGS" (Article.tags_to_html article)
+  |> r "LI_DATE" (Article.created_time_to_html article ~zone)
+;;
+
+let render_tag (tag_name : string) (tag: Tag.t) ~(tags_template : string) ~(tag_template: string) ~(zone: Time.Zone.t) =
+  let tags = String.concat ~sep:"\n" (List.map tag ~f:(fun article -> render_tag_item article ~template:tag_template ~zone)) in
+  let r = template_replace in
+  tags_template
+  |> r "LIST_TITLE" tag_name
+  |> r "LIST_CONTENT" tags
 ;;
 
 let render_index template = template
