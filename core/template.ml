@@ -76,6 +76,11 @@ let render_tag
     ~(template_rules : Template_engine.t)
     ~(zone : Time.Zone.t)
   =
+  let tag =
+    List.rev
+      (List.sort tag ~compare:(fun l r ->
+           Poly.compare (Article.created_epoch l ~zone) (Article.created_epoch r ~zone)))
+  in
   let tags =
     String.concat
       ~sep:"\n"

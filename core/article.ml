@@ -60,6 +60,13 @@ let to_html (article : t) = Markdown_parser.to_html article.full_contents
 let intro_to_html (article : t) = Markdown_parser.to_html article.intro
 let tags_to_html (article : t) = String.concat ~sep:", " article.tags
 
+let created_epoch (article : t) ~(zone : Time.Zone.t) =
+  try Float.of_string article.created with
+  | Invalid_argument _ ->
+    Time.Span.to_sec
+      (Time.to_span_since_epoch (Time.parse ~zone ~fmt:"%d-%m-%Y" article.created))
+;;
+
 let meta_extract_tags lines =
   List.map
     ~f:(fun x -> String.strip x)
