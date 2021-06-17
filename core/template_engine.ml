@@ -33,9 +33,7 @@ let a (rule : replacement_rule) (list_ : t) = rule :: list_
 let apply (fragment : string) ~(rules : t) =
   let rec apply_rules rules template =
     match rules with
-    | [] ->
-      printf "WARNING: Could not substitute %s\n" template;
-      template
+    | [] -> raise (NoRule template)
     | rule :: xs ->
       (match rule template with
       | Some r -> r
