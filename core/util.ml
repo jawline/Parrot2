@@ -2,6 +2,15 @@ open Core
 
 exception InvalidArticleName of string
 
+let dedup str =
+  let rec dedup_list = function
+    | [] -> []
+    | x :: y :: xs when Char.( = ) x y -> dedup_list (y :: xs)
+    | x :: xs -> x :: dedup_list xs
+  in
+  String.of_char_list (dedup_list (String.to_list str))
+;;
+
 let sanitize_path = function
   | "" -> raise (InvalidArticleName "all whitespace")
   | name ->
@@ -14,6 +23,7 @@ let sanitize_path = function
     |> String.substr_replace_all ~pattern:":" ~with_:""
     |> String.substr_replace_all ~pattern:"." ~with_:"_"
     |> String.substr_replace_all ~pattern:"&" ~with_:"and"
+    |> dedup
 ;;
 
-let article_path article_name = sprintf "article/%s" (sanitize_path article_name)
+let article_path article_name = sprintf "/articles/%s" (sanitize_path article_name)

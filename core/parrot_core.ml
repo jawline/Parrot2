@@ -7,7 +7,7 @@ exception InvalidTimezone
 let out_index_path = sprintf "%s/index.html"
 
 let out_article_path article output_base =
-  sprintf "%s/%s" output_base (Util.article_path article.name)
+  sprintf "%s/%s.html" output_base (Util.article_path article.name)
 ;;
 
 let out_tags_path tag_name output_base =
@@ -41,7 +41,7 @@ let clean_build input_directory =
   let template_rules = Template_engine.make (load_nav_template input_directory) in
   FileUtil.rm ~recurse:true [ output_directory ];
   FileUtil.mkdir (sprintf "%s/" output_directory);
-  FileUtil.mkdir (sprintf "%s/article/" output_directory);
+  FileUtil.mkdir (sprintf "%s/articles/" output_directory);
   FileUtil.mkdir (sprintf "%s/tags/" output_directory);
   let timezone =
     match Time.Zone.find "utc" with
