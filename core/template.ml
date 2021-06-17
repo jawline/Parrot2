@@ -33,11 +33,14 @@ let render_article
     ~(template_rules : Template_engine.t)
     ~(zone : Time.Zone.t)
   =
+  let templated_content =
+    Template_engine.apply ~rules:template_rules (Article.to_html article)
+  in
   Template_engine.apply
     template
     ~rules:
       (template_rules
-      |> Template_engine.a (Template_engine.c "ARTICLE_CONTENT" (Article.to_html article))
+      |> Template_engine.a (Template_engine.c "ARTICLE_CONTENT" templated_content)
       |> Template_engine.a
            (Template_engine.c "ARTICLE_TITLE" (Article.title_to_html article))
       |> Template_engine.a

@@ -5,7 +5,7 @@ exception InvalidArticleName of string
 let dedup str =
   let rec dedup_list = function
     | [] -> []
-    | x :: y :: xs when Char.( = ) x y -> dedup_list (y :: xs)
+    | '_' :: '_' :: xs -> dedup_list ('_' :: xs)
     | x :: xs -> x :: dedup_list xs
   in
   String.of_char_list (dedup_list (String.to_list str))
@@ -27,3 +27,6 @@ let sanitize_path = function
 ;;
 
 let article_path article_name = sprintf "/articles/%s" (sanitize_path article_name)
+
+(* TODO: Images will eventually get a dependency tree and automatic web optimization as they do in Parrot1, but for now just copy them into the result build in the correct place *)
+let image_path path = sprintf "/images/%s" path

@@ -13,11 +13,21 @@ let article_replacer template =
   else None
 ;;
 
+let image_replacer template =
+  printf "Replacing %s\n" template;
+  if String.is_prefix template ~prefix:"img:"
+  then Some (Util.image_path (String.drop_prefix template 4))
+  else None
+;;
+
 let c (from : string) (to_ : string) template =
   if String.( = ) template from then Some to_ else None
 ;;
 
-let make nav_template = [ c "NAV_BAR_CONTENT" nav_template; article_replacer ]
+let make nav_template =
+  [ c "NAV_BAR_CONTENT" nav_template; image_replacer; article_replacer ]
+;;
+
 let a (rule : replacement_rule) (list_ : t) = rule :: list_
 
 let apply (fragment : string) ~(rules : t) =

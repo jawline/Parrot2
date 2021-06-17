@@ -78,6 +78,7 @@ let clean_build input_directory =
       emit_tags xs
   in
   FileUtil.cp ~recurse:true [ input_directory ^ "static/" ] output_directory;
+  FileUtil.cp ~recurse:true [ input_directory ^ "images/" ] (output_directory ^ "images/");
   emit_index input_directory output_directory ~template_rules;
   emit_articles (Articles.all_articles input_directory);
   emit_tags (Hashtbl.to_alist tags);
