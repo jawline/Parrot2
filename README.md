@@ -15,5 +15,5 @@ website from the source directory execute `$ dune exec cli/parrot.exe -- INPUT_D
 Files will be placed in INPUT_DIRECTORY/_build.
 
 For examples on the directory structure see
-[git@github.com:jawline/ocamlMarkdown.git](git@github.com:jawline/ocamlMarkdown.git),
+[https://github.com/jawline/website/](https://github.com/jawline/website/),
 the source for my personal blog.
