@@ -8,7 +8,7 @@ type t =
   ; intro : Markdown_parser.t
   ; full_contents : Markdown_parser.t
   }
-[@@deriving show]
+[@@deriving show, sexp]
 
 exception NoMeta of string
 
@@ -57,7 +57,9 @@ let created_time_to_html (article : t) ~(zone : Time.Zone.t) =
 ;;
 
 let to_html (article : t) = Markdown_parser.to_html article.full_contents
+
 let intro_to_html (article : t) = Markdown_parser.to_html article.intro
+
 let tags_to_html (article : t) = String.concat ~sep:", " article.tags
 
 let created_epoch (article : t) ~(zone : Time.Zone.t) =
@@ -73,15 +75,15 @@ let meta_extract_tags lines =
     (String.split ~on:',' (meta_extract_string "!=!=! Tags:" lines))
 ;;
 
-let ingest_article (article_path : string) : t =
-  let article_contents = String.split_lines (In_channel.read_all article_path) in
-  let article_title = meta_extract_string "!=!=! Title:" article_contents in
-  let article_tags = meta_extract_tags article_contents in
-  let article_created = meta_extract_string "!=!=! Created:" article_contents in
+let ingest_string ~article =
+  let article = String.split_lines article in
+  let article_title = meta_extract_string "!=!=! Title:" article in
+  let article_tags = meta_extract_tags article in
+  let article_created = meta_extract_string "!=!=! Created:" article in
   let article_intro =
-    parse (String.concat ~sep:"\n" (meta_extract_intro article_contents))
+    parse (String.concat ~sep:"\n" (meta_extract_intro article))
   in
-  let article_markdown = String.concat ~sep:"\n" (remove_meta_lines article_contents) in
+  let article_markdown = String.concat ~sep:"\n" (remove_meta_lines article) in
   let article_parsed_markdown = parse article_markdown in
   { name = article_title
   ; tags = article_tags
@@ -89,4 +91,71 @@ let ingest_article (article_path : string) : t =
   ; intro = article_intro
   ; full_contents = article_parsed_markdown
   }
+
+let ingest_file ~path : t =
+  let article = In_channel.read_all path in
+ingest_string ~article
+;;
+
+let sample_article = "!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Created: 3949\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\nHello World.\n- A\n- B\n- C\n"
+
+let sample_article_similar_line = "!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Created: 3949\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\n!=!= Donkey!\nHello World.\n- A\n- B\n- C\n"
+
+let sample_article_no_intro = "!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Created: 3949\nHello World.\n- A\n- B\n- C\n"
+
+let sample_article_no_created = "!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\nHello World.\n- A\n- B\n- C\n"
+
+let sample_article_no_tags = "!=!=! Title: Test Article\n!=!=! Created: 3949\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\nHello World.\n- A\n- B\n- C\n"
+
+let%expect_test "article ingest" =
+        let ingested = ingest_string ~article:sample_article in
+        print_s [%message (ingested : t)];
+  [%expect {|
+    (ingested
+     ((name "Test Article") (tags (Cow)) (created 3949)
+      (intro (Fragments ((Paragraph ((Text "Test Intro."))))))
+      (full_contents
+       (Fragments ((Paragraph ((Text "Test Intro. Hello World. - A - B - C")))))))) |}]
+;;
+
+let%expect_test "article ingest with similar line to template" =
+  let ingested = ingest_string ~article:sample_article_similar_line in
+  print_s [%message (ingested : t)];
+  [%expect {|
+    (ingested
+     ((name "Test Article") (tags (Cow)) (created 3949)
+      (intro (Fragments ((Paragraph ((Text "Test Intro."))))))
+      (full_contents
+       (Fragments
+        ((Paragraph ((Text "Test Intro. !=!= Donkey! Hello World. - A - B - C")))))))) |}]
+;;
+
+let expect_raises fn =
+        try fn () 
+        with ex -> print_s [%message ( ex : exn) ]
+;;
+
+let%expect_test "article ingest with no intro" =
+  expect_raises (fun () -> let ingested = ingest_string ~article:sample_article_no_intro in
+  print_s [%message (ingested : t)]; );
+  [%expect {| (ex ("Parrot_core__Article.NoMeta(\"There is no intro start\")")) |}]
+;;
+
+let%expect_test "article ingest with no tags" =
+  expect_raises (fun () -> let ingested = ingest_string ~article:sample_article_no_tags in
+  print_s [%message (ingested : t)]; );
+  [%expect {| (ex ("Parrot_core__Article.NoMeta(\"!=!=! Tags:\")")) |}]
+;;
+
+let%expect_test "article ingest with no created" =
+        expect_raises (fun () -> 
+  let ingested = ingest_string ~article:sample_article_no_created in
+  print_s [%message (ingested : t)]);
+  [%expect {| (ex ("Parrot_core__Article.NoMeta(\"!=!=! Created:\")")) |}]
+;;
+
+let%expect_test "extract tags" =
+        let extracted = meta_extract_tags ["!=!=! Tags: Cat"; "!=!=! Tags: Dog"; "Hello"] in
+        print_s [%message (extracted : string list)];
+        [%expect {| (extracted (Cat)) |}]
 ;;
