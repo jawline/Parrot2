@@ -72,7 +72,7 @@ let created_epoch (article : t) ~(zone : Time.Zone.t) =
 let meta_extract_tags lines =
   List.map
     ~f:(fun x -> String.strip x)
-    (String.split ~on:',' (meta_extract_string "!=!=! Tags:" lines))
+    (String.split ~on:',' (meta_extract_string "!=!=! Tags:" lines)) |> List.filter ~f:(fun tag -> not (String.is_empty tag))
 ;;
 
 let ingest_string ~article =
