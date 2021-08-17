@@ -39,6 +39,8 @@ let rec remove_meta_lines xs =
   match xs with
   | [] -> []
   | x :: xs when String.is_prefix ~prefix:"!=!=!" x -> remove_meta_lines xs
+  (* We allow escaping of meta lines using \ and remove it with this rule *)
+  | x :: xs when String.is_prefix ~prefix:"\\!=!=!" x -> (String.drop_prefix x 1) :: remove_meta_lines xs
   | x :: xs -> x :: remove_meta_lines xs
 ;;
 
