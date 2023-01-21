@@ -42,9 +42,9 @@ let clean_build input_directory =
   FileUtil.mkdir (sprintf "%s/articles/" output_directory);
   FileUtil.mkdir (sprintf "%s/tags/" output_directory);
   let timezone =
-    match Time.Zone.find "utc" with
+    match Time_unix.Zone.find "utc" with
     | Some v -> v
-    | None -> raise InvalidTimezone
+    | None -> raise_s [%message "timezone utc is invalid"]
   in
   let tags = Tags.make () in
   let rec emit_articles = function

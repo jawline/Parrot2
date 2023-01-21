@@ -48,12 +48,12 @@ let title_to_html (article : t) = article.name
 
 (* If the creation time is an epoch time string then we format it using a UTC timezone, otherwise we assume it's a specific string
  * TODO: This is horrible legacy, I should standardize on one or the other *)
-let created_time_to_html (article : t) ~(zone : Time.Zone.t) =
+let created_time_to_html (article : t) ~(zone : Time_unix.Zone.t) =
   try
     let created =
-      Time.of_span_since_epoch (Time.Span.of_sec (Float.of_string article.created))
+      Time_unix.of_span_since_epoch (Time_unix.Span.of_sec (Float.of_string article.created))
     in
-    Time.format created "%d-%m-%Y" ~zone
+    Time_unix.format created "%d-%m-%Y" ~zone
   with
   | Invalid_argument _ -> article.created
 ;;
@@ -64,11 +64,11 @@ let intro_to_html (article : t) = Markdown_parser.to_html article.intro
 
 let tags_to_html (article : t) = String.concat ~sep:", " article.tags
 
-let created_epoch (article : t) ~(zone : Time.Zone.t) =
+let created_epoch (article : t) ~(zone : Time_unix.Zone.t) =
   try Float.of_string article.created with
   | Invalid_argument _ ->
-    Time.Span.to_sec
-      (Time.to_span_since_epoch (Time.parse ~zone ~fmt:"%d-%m-%Y" article.created))
+    Time_unix.Span.to_sec
+      (Time_unix.to_span_since_epoch (Time_unix.parse ~zone ~fmt:"%d-%m-%Y" article.created))
 ;;
 
 let meta_extract_tags lines =
@@ -117,7 +117,11 @@ let%expect_test "article ingest" =
      ((name "Test Article") (tags (Cow)) (created 3949)
       (intro (Fragments ((Paragraph ((Text "Test Intro."))))))
       (full_contents
-       (Fragments ((Paragraph ((Text "Test Intro. Hello World. - A - B - C")))))))) |}]
+       (Fragments
+        ((Paragraph ((Text "Test Intro. Hello World.")))
+         (List (style Unordered)
+          (items
+           ((Fragments ((Text A))) (Fragments ((Text B))) (Fragments ((Text C))))))))))) |}]
 ;;
 
 let%expect_test "article ingest with similar line to template" =
@@ -129,7 +133,12 @@ let%expect_test "article ingest with similar line to template" =
       (intro (Fragments ((Paragraph ((Text "Test Intro."))))))
       (full_contents
        (Fragments
-        ((Paragraph ((Text "Test Intro. !=!= Donkey! Hello World. - A - B - C")))))))) |}]
+        ((Paragraph
+          ((Text "Test Intro. ") (Text !=) (Text "!= Donkey")
+           (Text "! Hello World.")))
+         (List (style Unordered)
+          (items
+           ((Fragments ((Text A))) (Fragments ((Text B))) (Fragments ((Text C))))))))))) |}]
 ;;
 
 let expect_raises fn =

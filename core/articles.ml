@@ -9,5 +9,5 @@ let all_articles base =
     ~f:(fun article_path -> String.concat [ articles_base; article_path ])
     (List.filter
        ~f:(fun article_path -> is_article article_path)
-       (Sys.ls_dir (articles_subdir base)))
+       (Sys_unix.ls_dir (articles_subdir base)))
 ;;

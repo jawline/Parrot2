@@ -10,4 +10,4 @@ let command =
       map input_dir_param ~f:(fun input_dir () -> Parrot_core.clean_build input_dir))
 ;;
 
-let () = Command.run ~version:"1.0" ~build_info:"TRIAL" command
+let () = Command_unix.run ~version:"1.0" ~build_info:"TRIAL" command

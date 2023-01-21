@@ -3,5 +3,5 @@
 (using menhir 2.0)
 (package
   (name parrot)
-  (depends fileutils core re)
+  (depends fileutils core core_unix async_unix re)
 )
