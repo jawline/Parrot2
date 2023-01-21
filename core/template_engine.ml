@@ -8,8 +8,8 @@ type t = replacement_rule list
 let article_replacer template =
   if String.is_prefix template ~prefix:"article:"
   then (
-    let template = String.drop_prefix template (String.length "article:") in
-    Some (Util.article_path template))
+    let uuid = String.drop_prefix template (String.length "article:") in
+    Some (Article.path_of_uuid uuid))
   else None
 ;;
 

@@ -26,7 +26,5 @@ let sanitize_path = function
     |> dedup
 ;;
 
-let article_path article_name = sprintf "/articles/%s" (sanitize_path article_name)
-
 (* TODO: Images will eventually get a dependency tree and automatic web optimization as they do in Parrot1, but for now just copy them into the result build in the correct place *)
 let image_path path = sprintf "/images/%s" path

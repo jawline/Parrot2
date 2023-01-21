@@ -2,7 +2,8 @@ open Core
 open Markdown_parser
 
 type t =
-  { name : string
+  { title : string
+  ; uuid : string
   ; tags : string list
   ; created : string
   ; intro : Markdown_parser.t
@@ -11,6 +12,9 @@ type t =
 [@@deriving show, sexp]
 
 exception NoMeta of string
+
+let path_of_uuid uuid = sprintf "/articles/%s" (Util.sanitize_path uuid)
+let path article = path_of_uuid article.uuid
 
 let rec meta_intro_until lines =
   match lines with
@@ -44,10 +48,11 @@ let rec remove_meta_lines xs =
   | x :: xs -> x :: remove_meta_lines xs
 ;;
 
-let title_to_html (article : t) = article.name
+let title_to_html (article : t) = article.title
 
-(* If the creation time is an epoch time string then we format it using a UTC timezone, otherwise we assume it's a specific string
- * TODO: This is horrible legacy, I should standardize on one or the other *)
+(* If the creation time is an epoch time string then we format it using a UTC
+   timezone, otherwise we assume it's a specific string. *)
+(* TODO: This is horrible legacy, I should standardize on one or the other *)
 let created_time_to_html (article : t) ~(zone : Time_unix.Zone.t) =
   try
     let created =
@@ -79,18 +84,20 @@ let meta_extract_tags lines =
 
 let ingest_string ~article =
   let article = String.split_lines article in
-  let article_title = meta_extract_string "!=!=! Title:" article in
-  let article_tags = meta_extract_tags article in
-  let article_created = meta_extract_string "!=!=! Created:" article in
-  let article_intro =
+  let title = meta_extract_string "!=!=! Title:" article in
+  let uuid = meta_extract_string "!=!=! Uuid:" article in
+  let tags = meta_extract_tags article in
+  let created = meta_extract_string "!=!=! Created:" article in
+  let intro =
     parse (String.concat ~sep:"\n" (meta_extract_intro article))
   in
   let article_markdown = String.concat ~sep:"\n" (remove_meta_lines article) in
   let article_parsed_markdown = parse article_markdown in
-  { name = article_title
-  ; tags = article_tags
-  ; created = article_created
-  ; intro = article_intro
+  { title 
+  ; uuid
+  ; tags 
+  ; created 
+  ; intro 
   ; full_contents = article_parsed_markdown
   }
 

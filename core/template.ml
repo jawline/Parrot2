@@ -65,7 +65,7 @@ let render_tag_item
       |> Template_engine.a
            (Template_engine.c "LI_CREATED" (Article.created_time_to_html article ~zone))
       |> Template_engine.a
-           (Template_engine.c "LI_TARGET" (Util.article_path article.name)))
+           (Template_engine.c "LI_TARGET" (Article.path article)))
 ;;
 
 let render_tag

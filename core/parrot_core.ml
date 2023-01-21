@@ -5,7 +5,7 @@ exception InvalidTimezone
 let out_index_path = sprintf "%s/index.html"
 
 let out_article_path ~(article : Article.t) output_base =
-  sprintf "%s/%s.html" output_base (Util.article_path article.name)
+  sprintf "%s/%s.html" output_base (Article.path article)
 ;;
 
 let out_tags_path tag_name output_base =
@@ -51,7 +51,7 @@ let clean_build input_directory =
     | [] -> ()
     | path :: xs ->
       let article = Article.ingest_file ~path in
-      printf "Processing: %s\n" article.name;
+      printf "Processing: %s\n" article.title;
       emit_article
         article
         article_template
