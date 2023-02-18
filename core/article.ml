@@ -106,22 +106,22 @@ let ingest_file ~path : t =
 ingest_string ~article
 ;;
 
-let sample_article = "!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Created: 3949\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\nHello World.\n- A\n- B\n- C\n"
+let sample_article = "!=!=! Uuid:123456\n!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Created: 3949\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\nHello World.\n- A\n- B\n- C\n"
 
-let sample_article_similar_line = "!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Created: 3949\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\n!=!= Donkey!\nHello World.\n- A\n- B\n- C\n"
+let sample_article_similar_line = "!=!=! Uuid:123456\n!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Created: 3949\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\n!=!= Donkey!\nHello World.\n- A\n- B\n- C\n"
 
-let sample_article_no_intro = "!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Created: 3949\nHello World.\n- A\n- B\n- C\n"
+let sample_article_no_intro = "!=!=! Uuid:123456\n!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Created: 3949\nHello World.\n- A\n- B\n- C\n"
 
-let sample_article_no_created = "!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\nHello World.\n- A\n- B\n- C\n"
+let sample_article_no_created = "!=!=! Uuid:123456\n!=!=! Title: Test Article\n!=!=! Tags: Cow\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\nHello World.\n- A\n- B\n- C\n"
 
-let sample_article_no_tags = "!=!=! Title: Test Article\n!=!=! Created: 3949\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\nHello World.\n- A\n- B\n- C\n"
+let sample_article_no_tags = "!=!=! Uuid:123456\n!=!=! Title: Test Article\n!=!=! Created: 3949\n!=!=! Intro: Start\nTest Intro.\n!=!=! Intro: End\nHello World.\n- A\n- B\n- C\n"
 
 let%expect_test "article ingest" =
         let ingested = ingest_string ~article:sample_article in
         print_s [%message (ingested : t)];
   [%expect {|
     (ingested
-     ((name "Test Article") (tags (Cow)) (created 3949)
+     ((title "Test Article") (uuid 123456) (tags (Cow)) (created 3949)
       (intro (Fragments ((Paragraph ((Text "Test Intro."))))))
       (full_contents
        (Fragments
@@ -136,7 +136,7 @@ let%expect_test "article ingest with similar line to template" =
   print_s [%message (ingested : t)];
   [%expect {|
     (ingested
-     ((name "Test Article") (tags (Cow)) (created 3949)
+     ((title "Test Article") (uuid 123456) (tags (Cow)) (created 3949)
       (intro (Fragments ((Paragraph ((Text "Test Intro."))))))
       (full_contents
        (Fragments
